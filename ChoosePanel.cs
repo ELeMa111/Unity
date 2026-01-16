@@ -1,120 +1,117 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
-public class ChoosePanel : BasePanel<ChoosePanel>
+public class ChoosePanel : BasePanel
 {
-    public UIButton buttonBack;
-    public UIButton buttonLeft;
-    public UIButton buttonRight;
-    public UIButton buttonStart;
-    public Transform CharacterPos;
-    public List<GameObject> HPObjs;
-    public List<GameObject> SpeedObjs;
-    public List<GameObject> VolumeObjs;
-    public GameObject airPlane;
-    private float time = 0;
-    private bool isSel = false;
-    public Camera UICamera;
+    public ScrollRect svVertical;
+    public Transform contentV;
+    public ScrollRect svService;
+    public Transform contentG;
+    //public List<Button> buttonV;
+    public Button buttonT;
+    public Text text;
+    //public List<Button> buttonG;
+    public GameObject buttonObj;
 
-    public override void Initialize()
+    protected new void Awake()
     {
-        buttonStart.onClick.Add(new EventDelegate(() =>
+        base.Awake();
+        buttonObj.SetActive(false);
+        buttonObj.GetComponent<Button>().onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("GameScene");
-        }));
-        buttonBack.onClick.Add(new EventDelegate(() => 
-        {
-            BeginPanel.Instance.Show();
-            Hide();
-        }));
-        buttonLeft.onClick.Add(new EventDelegate(() =>
-        {
-            GameDataManager.Instance.nowSelHeroIndex--;
-            if (GameDataManager.Instance.nowSelHeroIndex < 0) 
-                GameDataManager.Instance.nowSelHeroIndex = GameDataManager.Instance.roleData.roleList.Count - 1;
-            ChangeNowHero();
-        }));
-        buttonRight.onClick.Add(new EventDelegate(() =>
-        {
-            GameDataManager.Instance.nowSelHeroIndex++;
-            if (GameDataManager.Instance.nowSelHeroIndex > GameDataManager.Instance.roleData.roleList.Count - 1)
-                GameDataManager.Instance.nowSelHeroIndex = 0;
-            ChangeNowHero();
-        }));
-        Hide();
+            //
+            contentV.localPosition = contentV.localPosition + new Vector3(0, 20, 0);
+        });
+        RefreshButtonT();
+        RefreshVItems();
+        RefreshGItems(1);
+        RefreshLabel(1);
     }
-    private void ChangeNowHero()
+    private void RefreshVItems()
     {
-        RoleInfo info = GameDataManager.Instance.GetNowSelHeroInfo();
-        //Debug.Log(Resources.Load<GameObject>(info.resName));
-        //更新模型/属性
-        //先删除上一次的飞机模型
-        DestroyObj();
-        airPlane = Instantiate(Resources.Load<GameObject>(info.resName));
-        airPlane.transform.SetParent(CharacterPos, false);
-        airPlane.transform.localPosition = Vector3.zero;
-        airPlane.transform.localRotation = Quaternion.identity;
-        airPlane.transform.localScale = info.scale * Vector3.one;
-        airPlane.layer = LayerMask.NameToLayer("UI");
-
-        for(int i = 0; i < 10; i++)
+        int num = GameDataManager.Instance.serverData.serverList.Count;
+        Debug.Log(num);
+        num = num / 10 + 1;
+        for(int i = 1; i <= num; i++)
         {
-            HPObjs[i].SetActive(i < info.HP ? true : false);
-            SpeedObjs[i].SetActive(i < info.speed ? true : false);
-            VolumeObjs[i].SetActive(i < info.volume ? true : false);
-        }
-    }
-    private void DestroyObj()
-    {
-        if (airPlane != null)
-        {
-            Destroy(airPlane);
-            airPlane = null;
-        }
-    }
-    public override void Show()
-    {
-        base.Show();
-        GameDataManager.Instance.nowSelHeroIndex = 0;
-        ChangeNowHero();
-    }
-    public override void Hide()
-    {
-        DestroyObj();
-        base.Hide();
-    }
-    private void Update()
-    {
-        time += Time.deltaTime;
-        //2秒为一个周期
-        //最大偏移值为0.2
-        float deltaY = 0.2f * Mathf.Sin(time / 2 * 2 * Mathf.PI);
-        CharacterPos.Translate(Vector3.up * deltaY * Time.deltaTime, Space.World); ;
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            //Debug.Log("按下鼠标左键");
-            Ray ray = UICamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if(Physics.Raycast(ray,out hit, 10000, 1 << LayerMask.NameToLayer("UI"), QueryTriggerInteraction.UseGlobal))
+            int currentI = i;
+            GameObject item = GameObject.Instantiate(GameDataManager.Instance.GetVitem(), contentV, false);
+            item.transform.Find("Text").GetComponent<Text>().text = (1+(10*(i-1))).ToString() + " - "+ (i*10).ToString() + " 区";
+            //buttonV.Add(item.GetComponent<Button>());
+            Button thisButton = item.GetComponent<Button>();
+            thisButton.onClick.AddListener(() => 
             {
-                //Debug.Log("检测到对象"+hit.transform.gameObject.name);
-                if(hit.collider.transform == CharacterPos)
+                RefreshGItems(currentI);
+                RefreshLabel(currentI);
+            });
+        }
+        if((contentV.transform as RectTransform).rect.height>(svVertical.transform.Find("Viewport").transform as RectTransform).rect.height)
+        {
+            buttonObj.SetActive(true);
+        }
+    }
+    private void RefreshGItems(int j)   //j 为 1 就显示 1-10
+    {
+        //Debug.Log(j);
+        for(int i = 0; i < contentG.childCount; i++)
+        {
+            Destroy(contentG.GetChild(i).gameObject);
+        }
+        for(int i = 1+(j-1)*10; i <= (j-1)*10 + 10; i++)
+        {
+            if (i <= GameDataManager.Instance.serverData.serverList.Count)
+            {
+                GameObject thisItem = GameObject.Instantiate(GameDataManager.Instance.GetGitem(),contentG,false);
+                ServerItem thisData = GameDataManager.Instance.serverData.serverList[i-1];
+                thisItem.transform.Find("Name").GetComponent<Text>().text = thisData.name;
+                thisItem.transform.Find("NO").GetComponent<Text>().text = i.ToString() + "区";
+                thisItem.transform.Find("ImageNew").gameObject.SetActive(thisData.isNew);
+                Sprite sprite = null;
+                switch (thisData.serverType)
                 {
-                    //Debug.Log("检测到目标对象");
-                    isSel = true;
+                    case 1:
+                        sprite = Resources.Load<Sprite>("type1");
+                        break;
+                    case 2:
+                        sprite = Resources.Load<Sprite>("type2");
+                        break;
+                    case 3:
+                        sprite = Resources.Load<Sprite>("type3");
+                        break;
+                    case 4:
+                        sprite = Resources.Load<Sprite>("type4");
+                        break;
                 }
+                thisItem.transform.Find("ImageType").GetComponent<Image>().sprite = sprite;
+                int currentI = i;
+                thisItem.transform.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    GameDataManager.Instance.SetServer(currentI);
+                    UIManager.Instance.Show<ServerPanel>();
+                    UIManager.Instance.Hide<ChoosePanel>();
+                });
             }
         }
-        if (Input.GetMouseButtonUp(0)) { isSel = false; }
-        if (isSel)
+    }
+    private void RefreshLabel(int j)    //j 为 行号
+    {
+        // (j-1)*10 + 1 
+        // (j-1)*10 + 10
+        //serverData.serverList.Count
+        string text = (1 + 10 * (j - 1)).ToString() + " - " + Mathf.Min((10 + 10 * (j - 1)), GameDataManager.Instance.serverData.serverList.Count).ToString() + " 区";
+        this.text.text = text;
+    }
+    private void RefreshButtonT()
+    {
+        ServerItem thisServer = GameDataManager.Instance.thisServer;
+        if (thisServer == null) return;
+        buttonT.transform.Find("Text").GetComponent<Text>().text = thisServer.name;
+        buttonT.onClick.AddListener(() => 
         {
-            float degree = Input.GetAxis("Mouse X") * Time.deltaTime * 1000;
-            Vector3 upv = CharacterPos.InverseTransformDirection(Vector3.up);
-            Quaternion quaternion = Quaternion.AngleAxis(-degree,upv);
-            CharacterPos.rotation *= quaternion;
-        }
+            UIManager.Instance.Show<ServerPanel>();
+            UIManager.Instance.Hide<ChoosePanel>();
+        });
     }
 }
