@@ -180,12 +180,12 @@ using System.Reflection;
 /// 除非把对象名作为String存储到注册表
 /// 
 /// </summary>
-public class PlayerPrefsDataManager
+public class PLayerPrefsDataManager
 {
     #region 实现单例模式
-    private static PlayerPrefsDataManager instance = new PlayerPrefsDataManager();
-    private PlayerPrefsDataManager() { }
-    public static PlayerPrefsDataManager Instance { get { return instance; } }
+    private static PLayerPrefsDataManager instance = new PLayerPrefsDataManager();
+    private PLayerPrefsDataManager() { }
+    public static PLayerPrefsDataManager Instance { get { return instance; } }
     #endregion
     #region 实现保存数据
     public void SaveData(object data,String key)    //(player1,Player1)(20,Age)
