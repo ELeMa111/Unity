@@ -1,85 +1,46 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Timeline;
 
 public class GamePanel : BasePanel<GamePanel>
 {
-    [SerializeField]
-    private MyLabel labelScore;
-    [SerializeField]
-    private MyLabel labelTime;
-    [SerializeField]
-    private MyButton buttonSetting;
-    [SerializeField]
-    private MyButton buttonBack;
-    [SerializeField]
-    private MyTexture textureHP;
-    [SerializeField]
-    private MyTexture textureMap;
-    [HideInInspector]
-    public int score = 0;
+    public UIButton buttonBack;
+    public UILabel labelTime;
+    public List<GameObject> HPObjs;
+    public float nowTime = 0; 
 
-    [HideInInspector]
-    public float time = 0;
-
-    private new void Awake()
+    public override void Initialize()
     {
-        base.Awake();
-
-        //初始化成员
-        try
+        buttonBack.onClick.Add(new EventDelegate(() =>
         {
-            if (labelScore == null) { labelScore = this.transform.Find("LabelScore").GetComponent<MyLabel>(); }
-            if (labelTime == null) { labelTime = this.transform.Find("LabelTime").GetComponent<MyLabel>(); }
-            if (buttonSetting == null) { buttonSetting = transform.Find("ButtonSetting").GetComponent<MyButton>(); }
-            if (buttonBack == null) { buttonBack = this.transform.Find("ButtonBack").GetComponent<MyButton>(); }
-            if (textureHP == null) { textureHP = this.transform.Find("TextureHP").GetComponent<MyTexture>(); }
-            if (textureMap == null) { textureMap = this.transform.Find("TextureMap").GetComponent<MyTexture>(); }
-        }
-        catch { }
-        finally { }
-        //初始化委托
-        buttonSetting.ButtonAction += SettingAction;
-        buttonBack.ButtonAction += BackAction;
+            //点击退出按钮
+            EnsurePanel.Instance.Show();
+        }));
+        ChangeHP(2);
     }
     private void Update()
     {
-        time += Time.deltaTime;
-        RefreshTime();
+        nowTime += Time.deltaTime;
+        //更新时间显示
+        int newTime = Convert.ToInt32(nowTime);
+        string timeStr = (newTime / 60 > 0 ? (newTime / 60).ToString() + "分" : "") +
+                         (newTime % 60).ToString() + "秒";
+        labelTime.text = timeStr;
     }
-    private void SettingAction()
+    public void ChangeHP( int HP)
     {
-        //打开设置面板
-        //暂停时间
-        //隐藏游戏面板防止穿透？
-        Time.timeScale = 0;
-        SettingPanel.Instance.ShoworHide(true);
-        this.ShoworHide(false);
-    }
-    private void BackAction()
-    {
-        //打开确认面板？
-        //切换场景到BeginScene？
-        Time.timeScale = 0;
-        EnsurePanel.Instance.ShoworHide(true);
-        this.ShoworHide(false);
-    }
-    public void AddScore(int addNum)
-    {
-        score += addNum;
-        //更新界面显示
-        labelScore.content.text = score.ToString();
-    }
-    public void RefreshHP(int max,int nowHP)
-    {
-        textureHP.position.rect.width = (float)nowHP / max * 750;
-    }
-    private void RefreshTime()
-    {
-        int minute = (int)time / 60;
-        int second = (int)time % 60;
-        labelTime.content.text = (minute==0?"":minute.ToString()+"分")+(second.ToString()+"秒");
+        for(int i = 0; i < 10; i++)
+        {
+            //if (i < HP)
+            //{
+            //    HPObjs[i].SetActive(true);
+            //}
+            //else
+            //{
+            //    HPObjs[i].SetActive(false);
+            //}
+            HPObjs[i].SetActive(i < HP ? true : false);
+        }
     }
 }
-

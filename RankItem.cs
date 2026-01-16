@@ -1,21 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RankItem 
+public class RankItem : MonoBehaviour
 {
-    public string name;
-    public int score;
-    public float time;
-    public RankItem() { }
-    public RankItem(string name,int score,float time) 
+    public UILabel labelRank;
+    public UILabel labelName;
+    public UILabel labelTime;
+
+    public void Initialize(int rank,string name,float time)
     {
-        this.name = name;
-        this.score = score;
-        this.time = time;
+        labelRank.text = rank.ToString();
+        labelName.text = name;
+        int newTime = Convert.ToInt32(time);
+        string timeStr = (newTime / 60 > 0 ? (newTime / 60).ToString() + "·Ö" : "") +
+                         (newTime % 60).ToString() + "Ãë";
+        labelTime.text = timeStr;
     }
-}
-public class RankList
-{
-    public List<RankItem> list;
 }
