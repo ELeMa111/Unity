@@ -115,25 +115,20 @@ public class MyRadioToggle : BaseControl
         //遍历控件列表
         for(int i = 0; i < myToggles.Length; i++)
         {
-            if (myToggles[i].newValue && index != i)
+            if (myToggles[i].value && index != i)
             {
                 index = i;
                 for (int j = 0; j < myToggles.Length; j++)
                 {
-                    myToggles[j].newValue = index == j ? true : false;
+                    myToggles[j].value = index == j ? true : false;
                 }
             }
-            else if (!myToggles[i].newValue && index == i)
+            else if (!myToggles[i].value && index == i)
             {
-                myToggles[i].newValue = true;
+                myToggles[i].value = true;
             }
             //绘制每个控件
-            if(myToggles[i].gameObject.activeSelf == true)
-            {
-                try { myToggles[i].Draw(); }
-                catch { }
-                finally { }
-            }
+            myToggles[i].Draw();
         }
     }
 }

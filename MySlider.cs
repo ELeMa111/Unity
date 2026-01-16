@@ -1,8 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 public enum SliderType
 {
     Horizontal, Vertical
@@ -19,47 +17,33 @@ public class MySlider : BaseControl
     public GUIStyle thumbStyle;
     public GUIStyle thumbExtentStyle;
 
-    public UnityAction<float> SliderAction = null;
-    
-    public float newValue;
-    private float oldValue;
+    private float value;
 
     protected override void DrawStyleOn()
     {
         switch (sliderType)
         {
             case SliderType.Horizontal:
-                newValue = GUI.HorizontalSlider(position.Rect, newValue, LeftorUpValue, RightorDownValue, sliderStyle, thumbStyle, thumbExtentStyle);
+                value = GUI.HorizontalSlider(position.Rect, value, LeftorUpValue, RightorDownValue, sliderStyle, thumbStyle, thumbExtentStyle);
                 break;
             case SliderType.Vertical:
-                if (thumbExtentStyle == GUIStyle.none) { newValue = GUI.VerticalSlider(position.Rect, newValue, LeftorUpValue, RightorDownValue, sliderStyle, thumbStyle); }
-                else { newValue = GUI.VerticalSlider(position.Rect, newValue, LeftorUpValue, RightorDownValue, sliderStyle, thumbStyle, thumbExtentStyle); }
+                if (thumbExtentStyle == GUIStyle.none) { value = GUI.VerticalSlider(position.Rect, value, LeftorUpValue, RightorDownValue, sliderStyle, thumbStyle); }
+                else { value = GUI.VerticalSlider(position.Rect, value, LeftorUpValue, RightorDownValue, sliderStyle, thumbStyle, thumbExtentStyle); }
                 break;
                 default:break;
         }
-        DidValueChanged();
     }
     protected override void DrawStyleOff()
     {
         switch (sliderType)
         {
             case SliderType.Horizontal:
-                newValue = GUI.HorizontalSlider(position.Rect, newValue, LeftorUpValue, RightorDownValue);
+                value = GUI.HorizontalSlider(position.Rect, value, LeftorUpValue, RightorDownValue);
                 break;
             case SliderType.Vertical:
-                newValue = GUI.VerticalSlider(position.Rect, newValue, LeftorUpValue, RightorDownValue);
+                value = GUI.VerticalSlider(position.Rect, value, LeftorUpValue, RightorDownValue);
                 break;
             default: break;
-        }
-        DidValueChanged();
-    }
-    private void DidValueChanged()
-    {
-        if (oldValue != newValue)
-        {
-            //数值被修改
-            SliderAction?.Invoke(newValue);
-            oldValue = newValue;
         }
     }
 }

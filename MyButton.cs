@@ -11,7 +11,7 @@ using UnityEngine;
 /// </summary>
 public class MyButton :BaseControl
 {
-    public event Action ButtonAction = ()=> { };
+    public event Action ButtonAction;
     protected override void DrawStyleOn()
     {
         if(GUI.Button(position.Rect, content, style))

@@ -114,16 +114,9 @@ public class MyWindow : BaseControl
             this.transform.GetChild(i).GetComponent<BaseControl>().Draw();
         }
         */
-        RefreshArray();
         for (int i = 0; i < baseControls.Length; i++)
         {
-            if (baseControls[i].gameObject.activeSelf == true)
-            {
-                try { baseControls[i].Draw(); }
-                catch { }
-                finally { }
-            }
-            
+            baseControls[i].Draw();
         }
     }
 }

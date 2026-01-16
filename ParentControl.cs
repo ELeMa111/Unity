@@ -68,11 +68,7 @@ public class ParentControl : MonoBehaviour
         */
         for (int i = 0; i < baseControls.Length; i++)
         {
-            if (baseControls[i].gameObject.activeSelf == true)
-            {
-                try { baseControls[i].Draw(); }
-                catch { /*Debug.Log("±¨´í000001");*/ }
-            }
+            baseControls[i].Draw();
         }
     }
 }
